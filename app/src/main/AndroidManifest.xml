@@ -88,5 +88,13 @@
             android:exported="true"
             />
 
+        <activity
+            android:name=".ui.RacingActivity"
+            android:label="WatchWheel"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Racing"
+            />
+
     </application>
 </manifest>

@@ -40,4 +40,8 @@
         <!-- Set the theme of the Activity that follows your splash screen. -->
         <item name="postSplashScreenTheme">@android:style/Theme.DeviceDefault</item>
     </style>
+
+    <style name="Theme.Racing" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowSwipeToDismiss">false</item>
+    </style>
 </resources>

@@ -1,59 +1,124 @@
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/ginkage)
-[![paypal](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LF9S5WAF6E4VA)
+# WatchWheel
 
-# WearMouse
+A Wear OS racing wheel controller that turns your smartwatch into a gyro-steered gamepad. Forked from [ginkage/wearmouse](https://github.com/ginkage/wearmouse).
 
-This project is a sample for the new Bluetooth HID Device API, which was
-introduced in Android P. It implements a simple air mouse and cursor keys
-emulation on a Wear OS device.
+> **Note:** This is not an officially supported Google product. This fork adds a gamepad (racing wheel) mode alongside the original WearMouse functionality — air mouse, cursor keys, and keyboard modes are all still available.
 
-Note: This is not an officially supported Google product.
+## What It Does
+
+WatchWheel pairs with any Bluetooth-capable device (PC, phone, Android TV) and appears as a standard USB/HID gamepad with:
+
+- **Steering** — gyroscope-driven (wrist twist), mapped linearly to -127..+127
+- **Throttle** — momentary touch zone (left side of screen)
+- **Brake** — momentary touch zone (right side of screen)
+- **DRS / ERS** — toggle buttons (bottom of screen)
+- **Calibrate** — tap to re-center steering
+
+Designed for racing games — tested with F1 games on Mobile via Bluetooth.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Language | Java 17 |
+| Platform | Wear OS (Android P / API 28+) |
+| Build System | Gradle + CMake (for native C++) |
+| Bluetooth | Android Bluetooth HID Device API (`BluetoothHidDevice`) |
+| Sensors | Android SensorManager (`TYPE_GYROSCOPE`) |
+| UI | Custom `View` with Canvas 2D drawing (no XML layouts for racing screen) |
+| Native | C++ orientation tracker via JNI (Google Cardboard SDK) |
+| Libraries | Wearable Support (`2.9.0`), AndroidX Wear, Guava, ConstraintLayout, SplashScreen |
+| Min SDK | 34 |
+| Target SDK | 34 |
+
+## Screenshots
+
+![Racing UI](screenshots/racing_ui.png)
+
+## Changes from Upstream (ginkage/wearmouse)
+
+### HID Descriptor (extended)
+
+A new gamepad report was **added** to the existing keyboard + mouse HID descriptor:
+- **Steering axis** (X) — signed int8 (-127 to +127)
+- **Gas axis** (Z) — unsigned int8 (0 to 127)
+- **Brake axis** (Rz) — unsigned int8 (0 to 127)
+- **8 buttons** — bitmask (bit 0 = DRS, bit 1 = ERS, bits 2-7 spare)
+- SDP record renamed to "WatchWheel / Racing Wheel Controller"
+- Subclass changed from `SUBCLASS1_COMBO` to `SUBCLASS1_NONE`
+
+### New Files
+
+| File | Description |
+|------|-------------|
+| `GamepadReport.java` | Builds the 4-byte HID input report for the gamepad descriptor |
+| `SteeringManager.java` | Reads TYPE_GYROSCOPE, integrates Z-axis angular velocity into a steering value |
+| `RacingActivity.java` | Main controller Activity — wires touch input + gyro steering + Bluetooth HID |
+| `RacingView.java` | Custom View — multitouch racing controls for round Wear OS screens |
+
+### Modified Files
+
+| File | What Changed |
+|------|-------------|
+| `Constants.java` | Added `ID_GAMEPAD = 3`, replaced keyboard/mouse descriptor with gamepad descriptor, updated SDP name/description/provider |
+| `HidDeviceApp.java` | Added `GamepadReport` instance, `sendGamepad()`, `getGamepadReport()`, and `ID_GAMEPAD` case in `getReport()` |
+| `HidDataSender.java` | Added public `sendGamepad()` and `getGamepadReport()` methods |
+| `ModeSelectFragment.java` | Added "Racing Wheel" preference click handler that launches `RacingActivity` |
+| `prefs_mode_select.xml` | Added `pref_inputRacing` preference entry |
+| `styles.xml` | Added `Theme.Racing` (no action bar, swipe-to-dismiss disabled) |
+| `AndroidManifest.xml` | Registered `RacingActivity` with portrait orientation and racing theme |
+
+## Architecture
+
+```
+RacingActivity
+├── SteeringManager (gyro → steering value)
+│   └── SensorManager (TYPE_GYROSCOPE, Z-axis only)
+├── RacingView (touch → gas/brake/DRS/ERS)
+│   └── Multitouch handling with pointer tracking
+└── HidDataSender
+    ├── GamepadReport (builds 4-byte report)
+    └── HidDeviceApp → BluetoothHidDevice.sendReport()
+```
 
 ## Compatibility
 
-This app is only compatible with Wear OS devices running Android P and above.
-You can use it to connect with pretty much any laptop or desktop computer,
-running Windows, Linux, Chrome OS, Mac OSX, Android TV, without any additional
-software, as long as it has a Bluetooth receiver.
+- **Watch:** Wear OS devices running Android P (API 28) and above
+- **Host:** Any Bluetooth-capable device (Windows, Linux, macOS, Chrome OS, Android TV)
+- No additional software needed on the host — standard HID gamepad
 
-## How to use this app
+## How to Build
 
-1. After launch, the first thing you see is the paired devices list.
-    * You probably want to pair a laptop or a desktop computer if it is the
-       first time you've launched the app.
-1. If you tap on "Available devices" option, you'll see nearby devices that
-   you can try pairing with.
-    * It's a good idea to try pairing with a laptop or a desktop computer.
-    * At this screen, the Wear OS device is also discoverable for the nearby
-       devices, so you can try searching for it on the other device as well.
-1. When you have a paired device, tapping on it will give you an option to
-   connect to it. This will bring up the Input Mode dialog.
-    * Sometimes this dialog pops up immediately after pairing, saving you a few
-       taps.
-1. You can now choose between Mouse (the air mouse), Cursor Keys and Keyboard
-   Input modes, and also can change a few settings.
-    * Every mode (except for the keyboard input) has a welcome screen that
-       describes the way to use it.
-       
-## Navigating the source code
+```bash
+# Requires JDK 17+ (Android Studio's bundled JDK 21 works)
+export JAVA_HOME="/path/to/Android Studio.app/Contents/jbr/Contents/Home"
+./gradlew assembleDebug
+```
 
-The main sections of the code tree are:
+The APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
 
-1. /bluetooth
-    * Everything related to the HID Device emulation, like report descriptor,
-       app configuration, and everything else that uses the new Bluetooth HID
-       Device API.
-1. /input
-    * Handy utilities for sending actual input events, e.g. converting
-       characters of an en-US keyboard to scan codes, or converting Rotation
-       Vector sensor events to mouse pointer movements.
-1. /sensors
-    * Implements orientation tracking using Google VR library. The GVR-based
-       approach produces results that are a drop-in replacement for the 
-       Rotation Vector sensor, but doesn't rely on the watch manufacturer's
-       implementation of that sensor.
-1. /ui
-    * The user interface
+## How to Use
 
+1. Install the APK on your Wear OS watch
+2. Launch WatchWheel → pair with your PC/phone
+3. Select **Racing Wheel** from the input mode menu
+4. Twist your wrist to steer, touch left/right zones for gas/brake
+5. Tap **CALIBRATE** at the top to re-center steering at any time
 
-[![alt text](https://play.google.com/intl/en_gb/badges/images/generic/en_badge_web_generic.png "Get it on Google Play")](https://play.google.com/store/apps/details?id=com.ginkage.wearmouse)
+> **Important:** If you previously paired as a mouse (using the original WearMouse), you must unpair and re-pair — the HID descriptor is cached at pairing time.
+
+## Credits
+
+- Original [WearMouse](https://github.com/ginkage/wearmouse) by [ginkage](https://github.com/ginkage)
+- Racing wheel modifications by [Viren Suthar](https://github.com/virensuthar)
+
+## License
+
+```
+Copyright 2018 Google LLC
+Copyright 2024 WatchWheel Contributors
+
+Licensed under the Apache License, Version 2.0
+```
+
+See [LICENSE](LICENSE) for the full text.

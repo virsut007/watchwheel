@@ -37,6 +37,11 @@
         android:icon="@drawable/ic_ms_keyboard"
         android:persistent="false" />
     <Preference
+        android:key="pref_inputRacing"
+        android:title="Racing Wheel"
+        android:icon="@drawable/ic_ms_mouse"
+        android:persistent="false" />
+    <Preference
         android:fragment="com.ginkage.wearmouse.ui.input.InputSettingsFragment"
         android:title="@string/pref_inputSettings"
         android:icon="@drawable/ic_bt_ellipsis"

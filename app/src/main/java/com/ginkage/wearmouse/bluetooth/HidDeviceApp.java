@@ -56,6 +56,7 @@ public class HidDeviceApp
     private final MouseReport mouseReport = new MouseReport();
     private final KeyboardReport keyboardReport = new KeyboardReport();
     private final BatteryReport batteryReport = new BatteryReport();
+    private final GamepadReport gamepadReport = new GamepadReport();
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
     @Nullable private BluetoothDevice device;
@@ -199,6 +200,23 @@ public class HidDeviceApp
         }
     }
 
+    /**
+     * Send the gamepad HID report.
+     *
+     * @param report The 4-byte gamepad report (steering, gas, brake, buttons).
+     */
+    @WorkerThread
+    void sendGamepad(byte[] report) {
+        if (inputHost != null && device != null) {
+            inputHost.sendReport(device, Constants.ID_GAMEPAD, report);
+        }
+    }
+
+    /** Get the GamepadReport instance for updating values before sending. */
+    GamepadReport getGamepadReport() {
+        return gamepadReport;
+    }
+
     @BinderThread
     private void onConnectionStateChanged(BluetoothDevice device, int state) {
         mainThreadHandler.post(() -> {
@@ -242,6 +260,9 @@ public class HidDeviceApp
 
             case Constants.ID_BATTERY:
                 return batteryReport.getReport();
+
+            case Constants.ID_GAMEPAD:
+                return gamepadReport.getReport();
 
             default: // fall out
         }

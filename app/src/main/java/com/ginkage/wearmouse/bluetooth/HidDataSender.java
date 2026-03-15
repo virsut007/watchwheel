@@ -220,6 +220,29 @@ public class HidDataSender
         }
     }
 
+    /**
+     * Send the current gamepad report over Bluetooth HID.
+     * Update the report values via {@link #getGamepadReport()} before calling.
+     */
+    @WorkerThread
+    public void sendGamepad() {
+        synchronized (lock) {
+            if (connectedDevice != null) {
+                GamepadReport report = hidDeviceApp.getGamepadReport();
+                hidDeviceApp.sendGamepad(report.setValue());
+            }
+        }
+    }
+
+    /**
+     * Get the GamepadReport instance to update steering/gas/brake/button values.
+     *
+     * @return The shared GamepadReport instance.
+     */
+    public GamepadReport getGamepadReport() {
+        return hidDeviceApp.getGamepadReport();
+    }
+
     private final ProfileListener profileListener =
             new ProfileListener() {
                 @Override

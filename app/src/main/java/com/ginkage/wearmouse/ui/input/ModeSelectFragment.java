@@ -24,6 +24,7 @@ import android.preference.PreferenceFragment;
 import android.support.wearable.preference.WearablePreferenceActivity;
 import com.ginkage.wearmouse.R;
 import com.ginkage.wearmouse.input.KeyboardInputController;
+import com.ginkage.wearmouse.ui.RacingActivity;
 import com.ginkage.wearmouse.ui.input.InputActivity.InputMode;
 
 /** Main menu for choosing the input mode. Also handles the Keyboard Input mode. */
@@ -33,6 +34,7 @@ public class ModeSelectFragment extends PreferenceFragment {
     private static final String KEY_PREF_INPUT_TOUCHPAD = "pref_inputTouchpad";
     private static final String KEY_PREF_INPUT_CURSOR = "pref_inputCursor";
     private static final String KEY_PREF_INPUT_KEYBOARD = "pref_inputKeyboard";
+    private static final String KEY_PREF_INPUT_RACING = "pref_inputRacing";
     private static final int INPUT_REQUEST_CODE = 1;
 
     private KeyboardInputController keyboardController;
@@ -63,6 +65,14 @@ public class ModeSelectFragment extends PreferenceFragment {
                         return true;
                     });
         }
+
+        // Racing Wheel — launches RacingActivity directly
+        findPreference(KEY_PREF_INPUT_RACING)
+                .setOnPreferenceClickListener(
+                        (p) -> {
+                            startActivity(new Intent(getActivity(), RacingActivity.class));
+                            return true;
+                        });
     }
 
     @Override
