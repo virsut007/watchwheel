@@ -4,6 +4,18 @@ A Wear OS racing wheel controller that turns your smartwatch into a gyro-steered
 
 > **Note:** This is not an officially supported Google product. This fork adds a gamepad (racing wheel) mode alongside the original WearMouse functionality — air mouse, cursor keys, and keyboard modes are all still available.
 
+## Installation
+
+The easiest way to install WatchWheel is to download the pre-compiled APK directly from the Releases page.
+
+1. Go to the [Latest Release](https://github.com/virsut007/watchwheel/releases/latest) page.
+2. Download the `app-universal-debug.apk` file attached at the bottom of the release notes.
+3. Sideload the APK onto your Wear OS watch using ADB.
+
+## Screenshots
+
+![Racing UI](screenshots/racing_ui.png)
+
 ## What It Does
 
 WatchWheel pairs with any Bluetooth-capable device (PC, phone, Android TV) and appears as a standard USB/HID gamepad with:
@@ -14,7 +26,8 @@ WatchWheel pairs with any Bluetooth-capable device (PC, phone, Android TV) and a
 - **DRS / ERS** — toggle buttons (bottom of screen)
 - **Calibrate** — tap to re-center steering
 
-Designed for racing games — tested with F1 games on Mobile via Bluetooth.
+Designed for racing games — tested with F1 games (Monoposto) on Mobile via Bluetooth.
+
 
 ## Tech Stack
 
@@ -31,9 +44,7 @@ Designed for racing games — tested with F1 games on Mobile via Bluetooth.
 | Min SDK | 34 |
 | Target SDK | 34 |
 
-## Screenshots
 
-![Racing UI](screenshots/racing_ui.png)
 
 ## Changes from Upstream (ginkage/wearmouse)
 
