@@ -110,7 +110,7 @@ The APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
 ## Credits
 
 - Original [WearMouse](https://github.com/ginkage/wearmouse) by [ginkage](https://github.com/ginkage)
-- Racing wheel modifications by [Viren Suthar](https://github.com/virensuthar)
+- Racing wheel modifications by [Viren Suthar](https://github.com/virsut007)
 
 ## License
 
